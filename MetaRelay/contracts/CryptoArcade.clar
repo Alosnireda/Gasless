@@ -33,8 +33,10 @@
 (define-read-only (get-relayer-info (relayer principal))
     (map-get? relayers relayer))
 
-(define-read-only (verify-signature (message (buff 256)) (signature (buff 65)) (signer principal))
-    (is-eq (secp256k1-recover? message signature) (some signer)))
+;; Read-only functions for signature verification
+(define-read-only (verify-signature (message (buff 32)) (signature (buff 65)) (signer principal))
+    (let ((recovered-public-key (unwrap! (secp256k1-recover? message signature) false)))
+        (is-eq (unwrap! (principal-of? recovered-public-key) false) signer)))
 
 ;; Private functions
 (define-private (increment-nonce (user principal))
